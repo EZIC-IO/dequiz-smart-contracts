@@ -1,3 +1,16 @@
+# deQuiz Smart Contracts
+
+## Deployment
+```bash
+# Create .env file. Make sure to fill the ENV with your values!
+cp .env.example .env
+# Add execution permission
+chmod +x ./sepolia_deploy.sh
+# Deploy to TestNet
+./sepolia_deploy.sh
+```
+
+
 ## Foundry
 
 **Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
