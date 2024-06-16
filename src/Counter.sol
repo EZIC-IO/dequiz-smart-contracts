@@ -1,14 +1,18 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
 
 contract Counter {
-    uint256 public number;
+    constructor(uint256 _initialValue) {
+        current = _initialValue;
+    }
+
+    uint256 public current;
 
     function setNumber(uint256 newNumber) public {
-        number = newNumber;
+        current = newNumber;
     }
 
     function increment() public {
-        number++;
+        current++;
     }
 }
