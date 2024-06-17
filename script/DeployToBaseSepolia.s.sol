@@ -14,7 +14,7 @@ contract DeployToBaseSepolia is Script {
         console.log("Dev Account", account);
         vm.startBroadcast(devPrivateKey);
         // Deploy DeQuizNFT
-        new DeQuizNFT("Test_DQNFT_1", "TDQNFT1", account);
+        new DeQuizNFT("DeQuiz --> Epoch I", "DQZ-E1", account);
         vm.stopBroadcast();
     }
 }
