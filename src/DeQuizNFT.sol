@@ -18,7 +18,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     uint256 private _tokenIdCounter;
-    uint256 MAX_SUPPLY = 1_000; // Max supply is 1000;
+    uint256 public constant MAX_SUPPLY = 1_000;
+    uint256 public constant MINT_PRICE = 0.000_111 ether;
 
     constructor(string memory name, string memory symbol, address initialOwner)
         ERC721(name, symbol)
@@ -29,11 +30,13 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         _tokenIdCounter = 1;
     }
 
-    function safeMint(string memory uri) public {
+    function safeMint(string memory uri) public payable {
         // Validate that max supply is not reached;
-        require(_tokenIdCounter <= MAX_SUPPLY, "No more mints available");
+        if (_tokenIdCounter > MAX_SUPPLY) revert MaxSupplyExceeded();
         // Limit to 1 per wallet
-        require(balanceOf(msg.sender) == 0, "Max Mint per wallet reached");
+        if (balanceOf(msg.sender) > 0) revert MaxAmountPerWalletExceeded();
+        // Mint Price
+        if (msg.value != MINT_PRICE) revert InsufficientValueForMintFee(MAX_SUPPLY);
         _safeMint(msg.sender, _tokenIdCounter);
         _setTokenURI(_tokenIdCounter, uri);
         // Increment tokenId counter;
@@ -48,4 +51,22 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721URIStorage) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
+
+    function alreadyMintedGlobalAmount() public view returns (uint256) {
+        return _tokenIdCounter - 1;
+    }
+
+    // TODO: Write test to ensure this function is working correctly;
+    function canInitiateMint() public view returns (bool) {
+        return (_tokenIdCounter < MAX_SUPPLY && balanceOf(msg.sender) == 0);
+    }
+
+    function withdrawETH() public onlyOwner {
+        address payable to = payable(owner());
+        to.transfer(address(this).balance);
+    }
+
+    error MaxSupplyExceeded();
+    error InsufficientValueForMintFee(uint256 _mintPrice);
+    error MaxAmountPerWalletExceeded();
 }
