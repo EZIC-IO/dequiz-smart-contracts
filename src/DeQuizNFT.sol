@@ -18,7 +18,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     uint256 private _tokenIdCounter;
-    uint256 public constant MAX_SUPPLY = 1_000;
+    uint256 public constant MAX_SUPPLY = 111;
     uint256 public constant MINT_PRICE = 0.000_111 ether;
 
     constructor(string memory name, string memory symbol, address initialOwner)
@@ -56,9 +56,12 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         return _tokenIdCounter - 1;
     }
 
-    // TODO: Write test to ensure this function is working correctly;
-    function canInitiateMint() public view returns (bool) {
-        return (_tokenIdCounter < MAX_SUPPLY && balanceOf(msg.sender) == 0);
+    function totalSupply() public pure returns (uint256) {
+        return MAX_SUPPLY;
+    }
+
+    function canInitiateMint(address addr) public view returns (bool) {
+        return (_tokenIdCounter < MAX_SUPPLY && balanceOf(addr) == 0);
     }
 
     function withdrawETH() public onlyOwner {
