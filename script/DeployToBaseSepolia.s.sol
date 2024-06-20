@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import {DeQuizNFT} from "../src/DeQuizNFT.sol";
@@ -14,7 +14,8 @@ contract DeployToBaseSepolia is Script {
         console.log("Dev Account", account);
         vm.startBroadcast(devPrivateKey);
         // Deploy DeQuizNFT
-        new DeQuizNFT("DeQuiz - Epoch I", "DQZ-E1", account);
+        // >> TODO: Add bash parameter to deploy script or env and parse it here
+        new DeQuizNFT("DeQuiz I", "DQZ-E01", account, "YOUR_IPFS_URI");
         vm.stopBroadcast();
     }
 }

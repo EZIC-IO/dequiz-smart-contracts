@@ -2,6 +2,11 @@
 cache/
 out/
 
+# IPFS metadata for collection info during deployment
+contract-metadata
+
+.DS_Store
+
 # Ignores development broadcast logs
 /broadcast
 

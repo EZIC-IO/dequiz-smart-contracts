@@ -18,32 +18,39 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     uint256 private _tokenIdCounter;
-    uint256 public constant MAX_SUPPLY = 111;
+    string private _contractMetadataURI;
+    uint256 public constant MAX_SUPPLY = 333;
     uint256 public constant MINT_PRICE = 0.000_111 ether;
 
-    constructor(string memory name, string memory symbol, address initialOwner)
+    constructor(string memory name, string memory symbol, address initialOwner, string memory contractMetadataURI)
         ERC721(name, symbol)
         Ownable(initialOwner)
     {
-        // "deleted" values return to their default value, which is 0 for numbers;
-        // Start counting from 1 to avoid security risks as suggested by Base Camp;
+        // >> "deleted" values return to their default value, which is 0 for numbers;
+        // >> Start counting from 1 to avoid security risks as suggested by Base Camp;
         _tokenIdCounter = 1;
+        _contractMetadataURI = contractMetadataURI;
     }
 
     function safeMint(string memory uri) public payable {
-        // Validate that max supply is not reached;
+        // >> Validate that max supply is not reached;
         if (_tokenIdCounter > MAX_SUPPLY) revert MaxSupplyExceeded();
-        // Limit to 1 per wallet
+        // >> Limit to 1 per wallet
         if (balanceOf(msg.sender) > 0) revert MaxAmountPerWalletExceeded();
-        // Mint Price
+        // >> Mint Price
         if (msg.value != MINT_PRICE) revert InsufficientValueForMintFee(MAX_SUPPLY);
         _safeMint(msg.sender, _tokenIdCounter);
         _setTokenURI(_tokenIdCounter, uri);
-        // Increment tokenId counter;
+        // >> Increment tokenId counter;
         _tokenIdCounter++;
     }
 
-    // The following functions are overrides required by Solidity;
+    // >> OpenSea Collection Metadata
+    function contractURI() public view returns (string memory) {
+        return _contractMetadataURI;
+    }
+
+    // >> The following functions are overrides required by Solidity;
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
