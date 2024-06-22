@@ -17,12 +17,11 @@ import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ER
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
-    uint256 public constant MAX_SUPPLY = 333;
+    uint256 public constant MAX_SUPPLY = 666;
     uint256 public constant MINT_PRICE = 0.000_111 ether;
 
     uint256 private _tokenIdCounter;
     string private _contractMetadataURI;
-    mapping(address => uint256) private _tokenIdOwnership;
 
     constructor(string memory name, string memory symbol, address initialOwner, string memory contractMetadataURI)
         ERC721(name, symbol)
@@ -34,7 +33,7 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         _contractMetadataURI = contractMetadataURI;
     }
 
-    function safeMint(string memory uri) public payable {
+    function safeMint(string memory uri) public payable returns (uint256 nftTokenId) {
         // >> Validate that max supply is not reached;
         if (_tokenIdCounter > MAX_SUPPLY) revert MaxSupplyExceeded();
         // >> Limit to 1 per wallet
@@ -42,11 +41,12 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         // >> Mint Price
         if (msg.value != MINT_PRICE) revert InsufficientValueForMintFee(MAX_SUPPLY);
         _safeMint(msg.sender, _tokenIdCounter);
-        // >> Record ownership of token ID
-        _tokenIdOwnership[msg.sender] = _tokenIdCounter;
-        _setTokenURI(_tokenIdCounter, uri);
+        // >> Preserve NFT TokenId
+        nftTokenId = _tokenIdCounter;
+        _setTokenURI(nftTokenId, uri);
         // >> Increment tokenId counter;
         _tokenIdCounter++;
+        return nftTokenId;
     }
 
     // >> OpenSea Collection Metadata
@@ -73,10 +73,6 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
 
     function canInitiateMint(address addr) public view returns (bool) {
         return (_tokenIdCounter < MAX_SUPPLY && balanceOf(addr) == 0);
-    }
-
-    function ownedTokenId(address addr) public view returns (uint256) {
-        return _tokenIdOwnership[addr];
     }
 
     function withdrawETH() public onlyOwner {
