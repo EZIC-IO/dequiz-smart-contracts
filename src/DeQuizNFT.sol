@@ -39,11 +39,11 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         // >> Limit to 1 per wallet
         if (balanceOf(msg.sender) > 0) revert MaxAmountPerWalletExceeded();
         // >> Mint Price
-        if (msg.value != MINT_PRICE) revert InsufficientValueForMintFee(MAX_SUPPLY);
+        if (msg.value != MINT_PRICE) revert InsufficientValueForMintFee(MINT_PRICE);
         _safeMint(msg.sender, _tokenIdCounter);
+        _setTokenURI(_tokenIdCounter, uri);
         // >> Preserve NFT TokenId
         nftTokenId = _tokenIdCounter;
-        _setTokenURI(nftTokenId, uri);
         // >> Increment tokenId counter;
         _tokenIdCounter++;
         return nftTokenId;
@@ -63,6 +63,7 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         return super.supportsInterface(interfaceId);
     }
 
+    // >> Custom read convenience functions
     function alreadyMintedGlobalAmount() public view returns (uint256) {
         return _tokenIdCounter - 1;
     }
@@ -75,6 +76,7 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         return (_tokenIdCounter < MAX_SUPPLY && balanceOf(addr) == 0);
     }
 
+    // >> Owner functions
     function withdrawETH() public onlyOwner {
         address payable to = payable(owner());
         to.transfer(address(this).balance);
