@@ -23,6 +23,8 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     uint256 private _tokenIdCounter;
     string private _contractMetadataURI;
 
+    mapping(address => uint256) private _tokenIdOwnership;
+
     constructor(string memory name, string memory symbol, address initialOwner, string memory contractMetadataURI)
         ERC721(name, symbol)
         Ownable(initialOwner)
@@ -33,7 +35,7 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         _contractMetadataURI = contractMetadataURI;
     }
 
-    function safeMint(string memory uri) public payable returns (uint256 nftTokenId) {
+    function safeMint(string memory uri) public payable {
         // >> Validate that max supply is not reached;
         if (_tokenIdCounter > MAX_SUPPLY) revert MaxSupplyExceeded();
         // >> Limit to 1 per wallet
@@ -42,11 +44,10 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         if (msg.value != MINT_PRICE) revert InsufficientValueForMintFee(MINT_PRICE);
         _safeMint(msg.sender, _tokenIdCounter);
         _setTokenURI(_tokenIdCounter, uri);
-        // >> Preserve NFT TokenId
-        nftTokenId = _tokenIdCounter;
+        // >> Record ownership of token ID
+        _tokenIdOwnership[msg.sender] = _tokenIdCounter;
         // >> Increment tokenId counter;
         _tokenIdCounter++;
-        return nftTokenId;
     }
 
     // >> OpenSea Collection Metadata
@@ -66,6 +67,10 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     // >> Custom read convenience functions
     function alreadyMintedGlobalAmount() public view returns (uint256) {
         return _tokenIdCounter - 1;
+    }
+
+    function ownedTokenId(address addr) public view returns (uint256) {
+        return _tokenIdOwnership[addr];
     }
 
     function totalSupply() public pure returns (uint256) {
