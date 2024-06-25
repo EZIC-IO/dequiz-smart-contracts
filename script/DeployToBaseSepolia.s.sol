@@ -15,7 +15,7 @@ contract DeployToBaseSepolia is Script {
         vm.startBroadcast(devPrivateKey);
         // Deploy DeQuizNFT
         // >> TODO: Add bash parameter to deploy script or env and parse it here
-        new DeQuizNFT("DeQuiz I", "DQZ-E01", account, "YOUR_IPFS_URI");
+        new DeQuizNFT("DeQuiz I", "DQZ-E01", account, "ipfs://YOUR_CID");
         vm.stopBroadcast();
     }
 }

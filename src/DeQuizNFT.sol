@@ -17,10 +17,13 @@ import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ER
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
+    uint256 public constant MAX_SUPPLY = 666;
+    uint256 public constant MINT_PRICE = 0.000_111 ether;
+
     uint256 private _tokenIdCounter;
     string private _contractMetadataURI;
-    uint256 public constant MAX_SUPPLY = 333;
-    uint256 public constant MINT_PRICE = 0.000_111 ether;
+
+    mapping(address => uint256) private _tokenIdOwnership;
 
     constructor(string memory name, string memory symbol, address initialOwner, string memory contractMetadataURI)
         ERC721(name, symbol)
@@ -38,9 +41,11 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         // >> Limit to 1 per wallet
         if (balanceOf(msg.sender) > 0) revert MaxAmountPerWalletExceeded();
         // >> Mint Price
-        if (msg.value != MINT_PRICE) revert InsufficientValueForMintFee(MAX_SUPPLY);
+        if (msg.value != MINT_PRICE) revert InsufficientValueForMintFee(MINT_PRICE);
         _safeMint(msg.sender, _tokenIdCounter);
         _setTokenURI(_tokenIdCounter, uri);
+        // >> Record ownership of token ID
+        _tokenIdOwnership[msg.sender] = _tokenIdCounter;
         // >> Increment tokenId counter;
         _tokenIdCounter++;
     }
@@ -59,8 +64,13 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         return super.supportsInterface(interfaceId);
     }
 
+    // >> Custom read convenience functions
     function alreadyMintedGlobalAmount() public view returns (uint256) {
         return _tokenIdCounter - 1;
+    }
+
+    function ownedTokenId(address addr) public view returns (uint256) {
+        return _tokenIdOwnership[addr];
     }
 
     function totalSupply() public pure returns (uint256) {
@@ -71,6 +81,7 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         return (_tokenIdCounter < MAX_SUPPLY && balanceOf(addr) == 0);
     }
 
+    // >> Owner functions
     function withdrawETH() public onlyOwner {
         address payable to = payable(owner());
         to.transfer(address(this).balance);
