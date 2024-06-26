@@ -30,13 +30,13 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         Ownable(initialOwner)
     {
         // >> "deleted" values return to their default value, which is 0 for numbers;
-        // >> Start counting from 1 to avoid security risks as suggested by Base Camp;
+        // >> Start counting from 1 to avoid security risks as suggested by Base Camp
         _tokenIdCounter = 1;
         _contractMetadataURI = contractMetadataURI;
     }
 
     function safeMint(string memory uri) public payable {
-        // >> Validate that max supply is not reached;
+        // >> Validate that max supply is not reached
         if (_tokenIdCounter > MAX_SUPPLY) revert MaxSupplyExceeded();
         // >> Limit to 1 per wallet
         if (balanceOf(msg.sender) > 0) revert MaxAmountPerWalletExceeded();
@@ -46,7 +46,9 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         _setTokenURI(_tokenIdCounter, uri);
         // >> Record ownership of token ID
         _tokenIdOwnership[msg.sender] = _tokenIdCounter;
-        // >> Increment tokenId counter;
+        // >> Emit event to inform application that the mint was successful
+        emit MintSuccessful(msg.sender, _tokenIdCounter);
+        // >> Increment tokenId counter
         _tokenIdCounter++;
     }
 
@@ -55,7 +57,7 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         return _contractMetadataURI;
     }
 
-    // >> The following functions are overrides required by Solidity;
+    // >> The following functions are overrides required by Solidity
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
@@ -86,6 +88,8 @@ contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         address payable to = payable(owner());
         to.transfer(address(this).balance);
     }
+
+    event MintSuccessful(address indexed _from, uint256 _tokenId);
 
     error MaxSupplyExceeded();
     error InsufficientValueForMintFee(uint256 _mintPrice);
