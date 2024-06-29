@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {DeQuizNFT} from "../src/DeQuizNFT.sol";
 import {Script, console} from "forge-std/Script.sol";
 
-contract DeployToBaseSepolia is Script {
+contract DeployToBaseMainnet is Script {
     function setUp() public {}
 
     function run() public {
