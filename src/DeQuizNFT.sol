@@ -17,7 +17,7 @@ import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ER
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract DeQuizNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
-    uint256 public constant MAX_SUPPLY = 666;
+    uint256 public constant MAX_SUPPLY = 1000;
     uint256 public constant MINT_PRICE = 0.000_111 ether;
 
     uint256 private _tokenIdCounter;
